@@ -166,7 +166,19 @@
 || 	Example: delete 1
 || 
 || ===================================================
-|| Enter command: || [Command entered:  delete should be only one number]
+|| Enter command: || [Command entered:  delete should be only numbers]
+|| Invalid command format: delete 
+|| delete: Deletes a person identified by the index number used in the last find/list call.
+|| 	Parameters: INDEX
+|| 	Example: delete 1
+|| Invalid command format: delete 
+|| delete: Deletes a person identified by the index number used in the last find/list call.
+|| 	Parameters: INDEX
+|| 	Example: delete 1
+|| Invalid command format: delete 
+|| delete: Deletes a person identified by the index number used in the last find/list call.
+|| 	Parameters: INDEX
+|| 	Example: delete 1
 || Invalid command format: delete 
 || delete: Deletes a person identified by the index number used in the last find/list call.
 || 	Parameters: INDEX
@@ -214,14 +226,14 @@
 || 
 || 3 persons found!
 || ===================================================
-|| Enter command: || [Command entered:  delete 1]
+|| Enter command: || [Command entered:  delete 1 2]
 || Deleted Person: Adam Brown  Phone Number: 111111  Email: adam@gmail.com
+|| Deleted Person: Betsy Choo  Phone Number: 222222  Email: benchoo@nus.edu.sg
 || ===================================================
 || Enter command: || [Command entered:  list]
-|| 	1. Betsy Choo  Phone Number: 222222  Email: benchoo@nus.edu.sg
-|| 	2. Dickson Ee  Phone Number: 444444  Email: dickson@nus.edu.sg
+|| 	1. Dickson Ee  Phone Number: 444444  Email: dickson@nus.edu.sg
 || 
-|| 2 persons found!
+|| 1 persons found!
 || ===================================================
 || Enter command: || [Command entered:  clear]
 || Address book has been cleared!

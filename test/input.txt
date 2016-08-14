@@ -69,7 +69,7 @@
 
   # should catch invalid args format
   delete
-  delete should be only one number
+  delete should be only numbers
 
   # should catch invalid index
   delete -1
@@ -88,7 +88,7 @@
   list
 
   # listing indexes get updated on next request
-  delete 1
+  delete 1 2
   list
 
 ##########################################################
