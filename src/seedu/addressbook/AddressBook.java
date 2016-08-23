@@ -131,34 +131,13 @@ public class AddressBook {
 
 	private static final String DIVIDER = "===================================================";
 
-	/*
-	 * We use a String array to store details of a single person. The constants
-	 * given below are the indexes for the different data elements of a person
-	 * used by the internal String[] storage format. For example, a person's
-	 * name is stored as the 0th element in the array.
-	 */
-	// private static final int PERSON_DATA_INDEX_NAME = 0;
-	// private static final int PERSON_DATA_INDEX_PHONE = 1;
-	// private static final int PERSON_DATA_INDEX_EMAIL = 2;
-
-	// T1A5a
-	// private static final String PersonProperty.NAME = "name";
-	// private static final String PersonProperty.EMAIL = "email";
-	// private static final String PersonProperty.PHONE = "phone";
-
-	// T1A5b
-	private static final String NAME="name";
-	private static final String EMAIL="email";
-	private static final String PHONE="phone";
+	private static final String NAME = "name";
+	private static final String EMAIL = "email";
+	private static final String PHONE = "phone";
 
 	private static enum PersonProperty {
 		NAME, EMAIL, PHONE
 	};
-
-	/**
-	 * The number of data elements for a single person.
-	 */
-	private static final int PERSON_DATA_COUNT = 3;
 
 	/**
 	 * Offset required to convert between 1-indexing and 0-indexing.COMMAND_
@@ -386,11 +365,12 @@ public class AddressBook {
 		case COMMAND_DELETE_WORD:
 			return executeDeletePerson(commandArgs);
 		case COMMAND_CLEAR_WORD:
-			return executeClearAddressBook();
+			clearAddressBook();
+			return MESSAGE_ADDRESSBOOK_CLEARED;
 		case COMMAND_HELP_WORD:
 			return getUsageInfoForAllCommands();
 		case COMMAND_EXIT_WORD:
-			executeExitProgramRequest();
+			exitProgram();
 		default:
 			return getMessageForInvalidCommandInput(commandType, getUsageInfoForAllCommands());
 		}
@@ -577,11 +557,7 @@ public class AddressBook {
 	 */
 	private static boolean isDeletePersonArgsValid(String rawArgs) {
 		try {
-			final int extractedIndex = Integer.parseInt(rawArgs.trim()); // use
-																			// standard
-																			// libraries
-																			// to
-																			// parse
+			final int extractedIndex = Integer.parseInt(rawArgs.trim()); // use standard libraries to parse
 			return extractedIndex >= DISPLAYED_INDEX_OFFSET;
 		} catch (NumberFormatException nfe) {
 			return false;
@@ -625,16 +601,6 @@ public class AddressBook {
 	}
 
 	/**
-	 * Clears all persons in the address book.
-	 *
-	 * @return feedback display message for the operation result
-	 */
-	private static String executeClearAddressBook() {
-		clearAddressBook();
-		return MESSAGE_ADDRESSBOOK_CLEARED;
-	}
-
-	/**
 	 * Displays all persons in the address book to the user; in added order.
 	 *
 	 * @return feedback display message for the operation result
@@ -643,15 +609,6 @@ public class AddressBook {
 		ArrayList<HashMap<PersonProperty, String>> toBeDisplayed = getAllPersonsInAddressBook();
 		showToUser(toBeDisplayed);
 		return getMessageForPersonsDisplayedSummary(toBeDisplayed);
-	}
-
-	/**
-	 * Request to terminate the program.
-	 *
-	 * @return feedback display message for the operation result
-	 */
-	private static void executeExitProgramRequest() {
-		exitProgram();
 	}
 
 	/*
