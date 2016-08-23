@@ -199,13 +199,49 @@ public class AddressBook {
 	 */
 	public static void main(String[] args) {
 		showWelcomeMessage();
-		processProgramArgs(args);
+		if (args.length >= 2) {
+			String[] message = {MESSAGE_INVALID_PROGRAM_ARGS};
+			for (String m : message) {
+				System.out.println(LINE_PREFIX + m);
+			}
+			exitProgram();
+		}
+		
+		if (args.length == 1) {
+			String filePath = args[0];
+			if (!isValidFilePath(filePath)) {
+				String[] message = {String.format(MESSAGE_INVALID_FILE, filePath)};
+				for (String m : message) {
+					System.out.println(LINE_PREFIX + m);
+				}
+				exitProgram();
+			}
+			
+			storageFilePath = filePath;
+			createFileIfMissing(filePath);
+		}
+		
+		if (args.length == 0) {
+			setupDefaultFileForStorage();
+		}
 		loadDataFromStorage();
 		while (true) {
-			String userCommand = getUserInput();
-			echoUserCommand(userCommand);
+			System.out.print(LINE_PREFIX + "Enter command: ");
+			String inputLine = SCANNER.nextLine();
+			// silently consume all blank and comment lines
+			while (inputLine.trim().isEmpty() || inputLine.trim().charAt(0) == INPUT_COMMENT_MARKER) {
+				inputLine = SCANNER.nextLine();
+			}
+			String userCommand = inputLine;
+			String[] message = {"[Command entered:" + userCommand + "]"};
+			for (String m : message) {
+				System.out.println(LINE_PREFIX + m);
+			}
 			String feedback = executeCommand(userCommand);
-			showResultToUser(feedback);
+			String[] message1 = {feedback, DIVIDER};
+			for (String m : message1) {
+				System.out.println(LINE_PREFIX + m);
+			}
 		}
 	}
 
@@ -224,90 +260,24 @@ public class AddressBook {
 	private static void showWelcomeMessage() {
 		String[] message = {DIVIDER, DIVIDER, VERSION, MESSAGE_WELCOME, DIVIDER};
 		
-		showToUser(message);
+		for (String m : message) {
+			System.out.println(LINE_PREFIX + m);
+		}
 	}
 
 //	private static void showResultToUser(String result) {
 //		showToUser(result, DIVIDER);
 //	}
 	
-	// T1A5c
-	private static void showResultToUser(String result) {
-		String[] message = {result, DIVIDER};
-		showToUser(message);
-	}
-
-
-	/*
-	 * ==============NOTE TO STUDENTS======================================
-	 * Parameter description can be omitted from the method header comment if
-	 * the parameter name is self-explanatory. In the method below, '@param
-	 * userInput' comment has been omitted.
-	 * ====================================================================
-	 */
-	/**
-	 * Echoes the user input back to the user.
-	 */
-	private static void echoUserCommand(String userCommand) {
-		String[] message = {"[Command entered:" + userCommand + "]"};
-		showToUser(message);
-	}
-
-	/*
-	 * ==============NOTE TO STUDENTS==========================================
-	 * If the reader wants a deeper understanding of the solution, she can go to
-	 * the next level of abstraction by reading the methods (given below) that
-	 * is referenced by the method above.
-	 * ====================================================================
-	 */
-
-	/**
-	 * Processes the program main method run arguments. If a valid storage file
-	 * is specified, sets up that file for storage. Otherwise sets up the
-	 * default file for storage.
-	 *
-	 * @param args
-	 *            full program arguments passed to application main method
-	 */
-	private static void processProgramArgs(String[] args) {
-		if (args.length >= 2) {
-			String[] message = {MESSAGE_INVALID_PROGRAM_ARGS};
-			showToUser(message);
-			exitProgram();
-		}
-
-		if (args.length == 1) {
-			setupGivenFileForStorage(args[0]);
-		}
-
-		if (args.length == 0) {
-			setupDefaultFileForStorage();
-		}
-	}
-
-	/**
-	 * Sets up the storage file based on the supplied file path. Creates the
-	 * file if it is missing. Exits if the file name is not acceptable.
-	 */
-	private static void setupGivenFileForStorage(String filePath) {
-
-		if (!isValidFilePath(filePath)) {
-			String[] message = {String.format(MESSAGE_INVALID_FILE, filePath)};
-			showToUser(message);
-			exitProgram();
-		}
-
-		storageFilePath = filePath;
-		createFileIfMissing(filePath);
-	}
-
 	/**
 	 * Displays the goodbye message and exits the runtime.
 	 */
 	private static void exitProgram() {
 		String[] message = {MESSAGE_GOODBYE, DIVIDER, DIVIDER};
 
-		showToUser(message);
+		for (String m : message) {
+			System.out.println(LINE_PREFIX + m);
+		}
 		System.exit(0);
 	}
 
@@ -318,7 +288,9 @@ public class AddressBook {
 	private static void setupDefaultFileForStorage() {
 		String[] message = {MESSAGE_USING_DEFAULT_FILE};
 
-		showToUser(message);
+		for (String m : message) {
+			System.out.println(LINE_PREFIX + m);
+		}
 		storageFilePath = DEFAULT_STORAGE_FILEPATH;
 		createFileIfMissing(storageFilePath);
 	}
@@ -494,13 +466,23 @@ public class AddressBook {
 		final ArrayList<HashMap<PersonProperty, String>> matchedPersons = new ArrayList<>();
 		for (HashMap<PersonProperty, String> person : getAllPersonsInAddressBook()) {
 			final Set<String> wordsInName = new HashSet<>(splitByWhitespace(getNameFromPerson(person)));
-			if (!Collections.disjoint(wordsInName, keywords)) {
+			if (keywordFound(wordsInName, keywords)) {
 				matchedPersons.add(person);
 			}
 		}
 		return matchedPersons;
 	}
 
+	private static boolean keywordFound(Set<String> wordsInName, Collection<String> keywords){
+		for(String word : wordsInName){
+			for(String keyword : keywords){
+				if(keyword.equalsIgnoreCase(word)){
+					return true;
+				}
+			}
+		}
+		return false;
+	}
 	/**
 	 * Deletes person identified using last displayed index.
 	 *
@@ -611,49 +593,6 @@ public class AddressBook {
 		return getMessageForPersonsDisplayedSummary(toBeDisplayed);
 	}
 
-	/*
-	 * =========================================== UI LOGIC
-	 * ===========================================
-	 */
-
-	/**
-	 * Prompts for the command and reads the text entered by the user. Ignores
-	 * lines with first non-whitespace char equal to
-	 * {@link #INPUT_COMMENT_MARKER} (considered comments)
-	 *
-	 * @return full line entered by the user
-	 */
-	private static String getUserInput() {
-		System.out.print(LINE_PREFIX + "Enter command: ");
-		String inputLine = SCANNER.nextLine();
-		// silently consume all blank and comment lines
-		while (inputLine.trim().isEmpty() || inputLine.trim().charAt(0) == INPUT_COMMENT_MARKER) {
-			inputLine = SCANNER.nextLine();
-		}
-		return inputLine;
-	}
-
-	/*
-	 * ==============NOTE TO STUDENTS====================================== Note
-	 * how the method below uses Java 'Varargs' feature so that the method can
-	 * accept a varying number of message parameters.
-	 * ====================================================================
-	 */
-	/**
-	 * Shows a message to the user
-	 */
-//	private static void showToUser(String... message) {
-//		for (String m : message) {
-//			System.out.println(LINE_PREFIX + m);
-//		}
-//	}
-	// T1A5c
-	private static void showToUser(String[] message) {
-		for (String m : message) {
-			System.out.println(LINE_PREFIX + m);
-		}
-	}
-
 	/**
 	 * Shows the list of persons to the user. The list will be indexed, starting
 	 * from 1.
@@ -663,7 +602,9 @@ public class AddressBook {
 		String listAsString = getDisplayString(persons);
 		String[] message = {listAsString};
 
-		showToUser(message);
+		for (String m : message) {
+			System.out.println(LINE_PREFIX + m);
+		}
 		updateLatestViewedPersonListing(persons);
 	}
 
@@ -755,18 +696,24 @@ public class AddressBook {
 		}
 		String[] message = {String.format(MESSAGE_ERROR_MISSING_STORAGE_FILE, filePath)};
 
-		showToUser(message);
+		for (String m : message) {
+			System.out.println(LINE_PREFIX + m);
+		}
 
 		try {
 			storageFile.createNewFile();
 			String[] message1 = {String.format(MESSAGE_STORAGE_FILE_CREATED, filePath)};
 
 
-			showToUser(message1);
+			for (String m : message1) {
+				System.out.println(LINE_PREFIX + m);
+			}
 		} catch (IOException ioe) {
 			String[] message1 = {String.format(MESSAGE_ERROR_CREATING_STORAGE_FILE, filePath)};
 
-			showToUser(message1);
+			for (String m : message1) {
+				System.out.println(LINE_PREFIX + m);
+			}
 			exitProgram();
 		}
 	}
@@ -785,7 +732,9 @@ public class AddressBook {
 		if (!successfullyDecoded.isPresent()) {
 			String[] message = {MESSAGE_INVALID_STORAGE_FILE_CONTENT};
 
-			showToUser(message);
+			for (String m : message) {
+				System.out.println(LINE_PREFIX + m);
+			}
 			exitProgram();
 		}
 		return successfullyDecoded.get();
@@ -803,12 +752,16 @@ public class AddressBook {
 		} catch (FileNotFoundException fnfe) {
 			String[] message = {String.format(MESSAGE_ERROR_MISSING_STORAGE_FILE, filePath)};
 
-			showToUser(message);
+			for (String m : message) {
+				System.out.println(LINE_PREFIX + m);
+			}
 			exitProgram();
 		} catch (IOException ioe) {
 			String[] message = {String.format(MESSAGE_ERROR_READING_FROM_FILE, filePath)};
 
-			showToUser(message);
+			for (String m : message) {
+				System.out.println(LINE_PREFIX + m);
+			}
 			exitProgram();
 		}
 		return lines;
@@ -828,7 +781,9 @@ public class AddressBook {
 		} catch (IOException ioe) {
 			String[] message = {String.format(MESSAGE_ERROR_WRITING_TO_FILE, filePath)};
 
-			showToUser(message);
+			for (String m : message) {
+				System.out.println(LINE_PREFIX + m);
+			}
 			exitProgram();
 		}
 	}
